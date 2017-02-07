@@ -10,6 +10,7 @@ import UIKit
 
 protocol BoardDelegate: class {
     func playerTurn(board: Board, position: Int) -> Player
+    
 }
 
 
@@ -31,6 +32,7 @@ class Board: UIView {
     
     var position: Int!
     var winner: Player!
+    //var activeBoard: Int? = nil    //added
     
     weak var delegate: BoardDelegate!
     
@@ -73,6 +75,7 @@ extension Board {
             gestureRecognizer.numberOfTapsRequired = 1
             imageView.addGestureRecognizer(gestureRecognizer)
         }
+        print("Exiting setupImages")
     }
     
 }
@@ -82,9 +85,28 @@ extension Board {
     
     func playTurn(sender: UITapGestureRecognizer) {
         let imageView = sender.view as! UIImageView
-        let player = delegate.playerTurn(board: self, position: imageView.tag)
-        imageView.removeGestureRecognizer(sender)
-        animateTurn(imageView: imageView, player: player)
+        print("Entering playTurn")
+        //check if correct board
+        /*let activeB:Int! = self.activeBoard */
+        print("User Board:\(self.position)) imageView.tag:\(imageView.tag)")
+        //if activeB != nil &&  imageView.tag != activeB   {
+        if let vc:ViewController = self.delegate as? ViewController {
+            if self.position != vc.nextActiveBoard && vc.nextActiveBoard != -1 {
+                vc.nextMoveMsg.text = "Invalid Board. Play on Board:\(vc.nextActiveBoard)"
+            }
+       // }
+            else
+            {
+                let player = delegate.playerTurn(board: self, position: imageView.tag)
+                imageView.removeGestureRecognizer(sender)
+                animateTurn(imageView: imageView, player: player)
+                
+                
+                vc.computerPlay(activeBoardNo: imageView.tag /*self.position*/)
+            } //else
+            print("vc.nextActiveBoard:\(vc.nextActiveBoard)")
+        }
+    
     }
     
     func animateTurn(imageView: UIImageView, player: Player) {
@@ -93,6 +115,7 @@ extension Board {
         UIView.animate(withDuration: 0.3, animations: {
             imageView.alpha = 1.0
         })
+        print("Exiting animateTurn")
     }
     
 }
@@ -120,6 +143,7 @@ extension Board {
         UIView.transition(from: contentView, to: winningView, duration: 0.8, options: .transitionFlipFromLeft, completion: nil)
     }
 }
+
 
 
 extension UIView {
